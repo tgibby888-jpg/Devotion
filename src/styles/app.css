@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/* Devotion - Dark Luxury Findom Aesthetic */
+:root {
+  --color-dark-900: #0a0a0b;
+  --color-dark-800: #121214;
+  --color-dark-700: #1a1a1e;
+  --color-dark-600: #27272a;
+  --color-gold-400: #d4a853;
+  --color-gold-500: #c9952e;
+  --color-gold-600: #b07d1a;
+  --color-crimson-500: #8b0000;
+  --color-crimson-600: #6b0000;
+  --color-crimson-700: #4a0000;
+  --color-rose-500: #b91c1c;
+  --color-rose-400: #dc2626;
+}
+
+body {
+  background-color: var(--color-dark-900);
+  color: #e5e5e5;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+  min-height: 100dvh;
+}
+
+/* Gold accent text */
+.gold-text {
+  color: var(--color-gold-400);
+}
+
+/* Gradient gold text */
+.gold-gradient {
+  background: linear-gradient(135deg, #d4a853 0%, #f5deb3 50%, #c9952e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Crimson accent */
+.crimson-accent {
+  color: var(--color-crimson-500);
+}
+
+/* Glass card style */
+.glass-card {
+  background: rgba(18, 18, 20, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 149, 46, 0.15);
+  border-radius: 16px;
+}
+
+.glass-card:hover {
+  border-color: rgba(201, 149, 46, 0.4);
+  box-shadow: 0 0 30px rgba(201, 149, 46, 0.05);
+}
+
+/* Gold button */
+.btn-gold {
+  background: linear-gradient(135deg, #c9952e 0%, #b07d1a 100%);
+  color: #0a0a0b;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  transition: all 0.2s ease;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #d4a853 0%, #c9952e 100%);
+  box-shadow: 0 4px 20px rgba(201, 149, 46, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+/* Ghost button */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-gold-400);
+  border: 1px solid rgba(201, 149, 46, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--color-gold-400);
+  background: rgba(201, 149, 46, 0.05);
+}
+
+/* Input styling */
+.input-dark {
+  background: rgba(39, 39, 42, 0.6);
+  border: 1px solid rgba(201, 149, 46, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #e5e5e5;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.input-dark:focus {
+  border-color: var(--color-gold-500);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(201, 149, 46, 0.1);
+}
+
+.input-dark::placeholder {
+  color: #52525b;
+}
+
+/* Subtle divider */
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 149, 46, 0.3), transparent);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-dark-900);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Selection */
+::selection {
+  background: rgba(201, 149, 46, 0.3);
+  color: #f5deb3;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-fade-in-delay-1 {
+  animation: fadeIn 0.6s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fadeIn 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-3 {
+  animation: fadeIn 0.6s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+/* Luxury accent line */
+.accent-line {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-gold-500), transparent);
+}
