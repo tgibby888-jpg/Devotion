@@ -10,12 +10,10 @@
 // the takeover works across user boundaries.
 import handler from "./dist/server/server.js";
 
-// Pinned, NOT read from the environment. The published preview URL
-// (<label>.<PUBLIC_SITE_DOMAIN>) is reverse-proxied to 0.0.0.0:3000 inside the
-// sandbox, so the default site MUST bind there. Bun auto-loads .env files, so
-// honouring process.env.PORT/HOST would let a stray env var or a .env in the site
-// dir silently move the site off :3000 (or onto loopback) and break the public URL.
-const PORT = 3000;
+// Read from the $PORT environment variable for Railway deployment, where the
+// platform assigns a dynamic port and probes it for healthchecks. Falls back to
+// 3000 for local development and sandbox use, preserving existing behaviour.
+const PORT = Number(process.env.PORT) || 3000;
 const HOST = "0.0.0.0";
 const CLIENT_DIR = `${import.meta.dir}/dist/client`;
 
