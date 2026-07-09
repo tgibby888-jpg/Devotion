@@ -1,13 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-
-function esc(val: string): string {
-  return val.replace(/'/g, "''");
-}
-
-function qry(sql: string) {
-  return Bun.$(["team-db", sql]).quiet().nothrow();
-}
+import { query, esc } from "~/utils/db";
 
 const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
   const { event } = await import("@tanstack/react-start");
@@ -19,28 +12,20 @@ const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
   }
   const token = cookies["devotion_session"];
   if (!token) return { user: null };
-  const safeToken = esc(token);
-  const result = await qry("SELECT user_id FROM auth_tokens WHERE token = '" + safeToken + "' AND expires_at > datetime('now')").text();
-  try {
-    const rows = JSON.parse(result);
-    if (rows && rows.length > 0) {
-      const uid = rows[0].user_id;
-      const uResult = await qry("SELECT id, email, display_name, tier FROM users WHERE id = '" + uid + "'").text();
-      const uRows = JSON.parse(uResult);
-      if (uRows && uRows.length > 0) return { user: uRows[0] };
-    }
-  } catch {}
+  const rows = await query("SELECT user_id FROM auth_tokens WHERE token = '" + esc(token) + "' AND expires_at > datetime('now')");
+  if (rows && rows.length > 0) {
+    const uid = rows[0].user_id;
+    const uRows = await query("SELECT id, email, display_name, tier FROM users WHERE id = '" + uid + "'");
+    if (uRows && uRows.length > 0) return { user: uRows[0] };
+  }
   return { user: null };
 });
 
 const checkProfile = createServerFn({ method: "GET" }).handler(async () => {
   const { user } = await getCurrentUser();
   if (!user) return { hasProfile: false, displayName: "" };
-  const result = await qry("SELECT id FROM profiles WHERE user_id = '" + esc(user.id) + "'").text();
-  try {
-    const rows = JSON.parse(result);
-    return { hasProfile: rows && rows.length > 0, displayName: user.display_name || "Devotee" };
-  } catch { return { hasProfile: false, displayName: user.display_name || "Devotee" }; }
+  const rows = await query("SELECT id FROM profiles WHERE user_id = '" + esc(user.id) + "'");
+  return { hasProfile: rows && rows.length > 0, displayName: user.display_name || "Devotee" };
 });
 
 export const Route = createFileRoute("/dashboard")({

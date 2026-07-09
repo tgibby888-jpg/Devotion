@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { query, esc } from "~/utils/db";
 
 type QuestionnaireData = {
   domSubPreference: string;
@@ -11,15 +12,6 @@ type QuestionnaireData = {
   tributeFrequency: string;
   addressAs: string;
 };
-
-function esc(val: string): string {
-  return val.replace(/'/g, "''");
-}
-
-function qry(sql: string) {
-  // Use Bun.$ with a quoted string to avoid template literal issues
-  return Bun.$(["team-db", sql]).quiet().nothrow();
-}
 
 // Get current user from session
 const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
@@ -32,17 +24,12 @@ const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
   }
   const token = cookies["devotion_session"];
   if (!token) return { user: null };
-  const safeToken = esc(token);
-  const result = await qry("SELECT user_id FROM auth_tokens WHERE token = '" + safeToken + "' AND expires_at > datetime('now')").text();
-  try {
-    const rows = JSON.parse(result);
-    if (rows && rows.length > 0) {
-      const uid = rows[0].user_id;
-      const uResult = await qry("SELECT id, email, display_name, tier FROM users WHERE id = '" + uid + "'").text();
-      const uRows = JSON.parse(uResult);
-      if (uRows && uRows.length > 0) return { user: uRows[0] };
-    }
-  } catch {}
+  const rows = await query("SELECT user_id FROM auth_tokens WHERE token = '" + esc(token) + "' AND expires_at > datetime('now')");
+  if (rows && rows.length > 0) {
+    const uid = rows[0].user_id;
+    const uRows = await query("SELECT id, email, display_name, tier FROM users WHERE id = '" + uid + "'");
+    if (uRows && uRows.length > 0) return { user: uRows[0] };
+  }
   return { user: null };
 });
 
@@ -71,7 +58,7 @@ const saveQuestionnaire = createServerFn({ method: "POST" })
     const safeInstructions = esc(botInstructions);
 
     const sql = "INSERT INTO profiles (user_id, questionnaire_answers, bot_instructions) VALUES ('" + safeUserId + "', '" + safeAnswers + "', '" + safeInstructions + "') ON CONFLICT(user_id) DO UPDATE SET questionnaire_answers='" + safeAnswers + "', bot_instructions='" + safeInstructions + "'";
-    await qry(sql).text();
+    await query(sql);
 
     return { success: true };
   });

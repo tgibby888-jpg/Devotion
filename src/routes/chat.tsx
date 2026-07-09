@@ -1,14 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useState, useRef, useEffect } from "react";
-
-function esc(val: string): string {
-  return val.replace(/'/g, "''");
-}
-
-function qry(sql: string) {
-  return Bun.$(["team-db", sql]).quiet().nothrow();
-}
+import { query, esc } from "~/utils/db";
 
 // Get current user from session
 const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
@@ -21,17 +14,12 @@ const getCurrentUser = createServerFn({ method: "GET" }).handler(async () => {
   }
   const token = cookies["devotion_session"];
   if (!token) return { user: null };
-  const safeToken = esc(token);
-  const result = await qry("SELECT user_id FROM auth_tokens WHERE token = '" + safeToken + "' AND expires_at > datetime('now')").text();
-  try {
-    const rows = JSON.parse(result);
-    if (rows && rows.length > 0) {
-      const uid = rows[0].user_id;
-      const uResult = await qry("SELECT id, email, display_name, tier FROM users WHERE id = '" + uid + "'").text();
-      const uRows = JSON.parse(uResult);
-      if (uRows && uRows.length > 0) return { user: uRows[0] };
-    }
-  } catch {}
+  const rows = await query("SELECT user_id FROM auth_tokens WHERE token = '" + esc(token) + "' AND expires_at > datetime('now')");
+  if (rows && rows.length > 0) {
+    const uid = rows[0].user_id;
+    const uRows = await query("SELECT id, email, display_name, tier FROM users WHERE id = '" + uid + "'");
+    if (uRows && uRows.length > 0) return { user: uRows[0] };
+  }
   return { user: null };
 });
 
@@ -40,13 +28,10 @@ const getProfile = createServerFn({ method: "GET" })
     const { user } = await getCurrentUser();
     if (!user) return { hasProfile: false, botInstructions: "", answers: {} };
 
-    const result = await qry("SELECT questionnaire_answers, bot_instructions FROM profiles WHERE user_id = '" + esc(user.id) + "'").text();
-    try {
-      const rows = JSON.parse(result);
-      if (rows && rows.length > 0) {
-        return { hasProfile: true, botInstructions: rows[0].bot_instructions, answers: JSON.parse(rows[0].questionnaire_answers || "{}") };
-      }
-    } catch {}
+    const result = await query("SELECT questionnaire_answers, bot_instructions FROM profiles WHERE user_id = '" + esc(user.id) + "'");
+    if (result && result.length > 0) {
+      return { hasProfile: true, botInstructions: result[0].bot_instructions, answers: JSON.parse(result[0].questionnaire_answers || "{}") };
+    }
     return { hasProfile: false, botInstructions: "", answers: {} };
   });
 
@@ -61,7 +46,7 @@ const chatFn = createServerFn({ method: "POST" })
 
     // Save user message
     const safeMsg = esc(message);
-    await qry("INSERT INTO bot_interactions (user_id, role, message) VALUES ('" + safeUserId + "', 'user', '" + safeMsg + "')").text();
+    await query("INSERT INTO bot_interactions (user_id, role, message) VALUES ('" + safeUserId + "', 'user', '" + safeMsg + "')");
 
     // Build messages for OpenAI
     const messages = [
@@ -89,7 +74,7 @@ const chatFn = createServerFn({ method: "POST" })
       const reply = json.choices?.[0]?.message?.content || "";
 
       const safeReply = esc(reply);
-      await qry("INSERT INTO bot_interactions (user_id, role, message) VALUES ('" + safeUserId + "', 'bot', '" + safeReply + "')").text();
+      await query("INSERT INTO bot_interactions (user_id, role, message) VALUES ('" + safeUserId + "', 'bot', '" + safeReply + "')");
 
       return { reply };
     } catch (e: any) {
@@ -101,11 +86,8 @@ const getHistory = createServerFn({ method: "GET" }).handler(async () => {
   const { user } = await getCurrentUser();
   if (!user) return { history: [] };
 
-  const result = await qry("SELECT role, message, timestamp FROM bot_interactions WHERE user_id = '" + esc(user.id) + "' ORDER BY timestamp ASC LIMIT 50").text();
-  try {
-    const rows = JSON.parse(result);
-    return { history: rows.map((r: any) => ({ role: r.role, content: r.message, timestamp: r.timestamp })) };
-  } catch { return { history: [] }; }
+  const rows = await query("SELECT role, message, timestamp FROM bot_interactions WHERE user_id = '" + esc(user.id) + "' ORDER BY timestamp ASC LIMIT 50");
+  return { history: rows.map((r: any) => ({ role: r.role, content: r.message, timestamp: r.timestamp })) };
 });
 
 export const Route = createFileRoute("/chat")({

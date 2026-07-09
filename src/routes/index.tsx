@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { readFile } from "node:fs/promises";
 import { useState } from "react";
+import { query } from "~/utils/db";
 
 const getBusinessName = createServerFn({ method: "GET" }).handler(async () => {
   try {
@@ -24,14 +25,15 @@ const waitlistFn = createServerFn({ method: "POST" })
     }
 
     const safeEmail = email.replace(/'/g, "''");
-    const result = await Bun.$`team-db "INSERT INTO waitlist (email) VALUES ('${safeEmail}')"`.quiet().nothrow().text();
-
-    // If the insert succeeded (no error), or if it failed because the email already exists
-    if (result && result.includes("UNIQUE constraint failed")) {
-      return { error: "You're already on the waitlist!" };
+    try {
+      await query("INSERT INTO waitlist (email) VALUES ('" + safeEmail + "')");
+      return { success: true };
+    } catch (e: any) {
+      if (e.message && e.message.includes("UNIQUE")) {
+        return { error: "You're already on the waitlist!" };
+      }
+      return { error: "Failed to join waitlist." };
     }
-
-    return { success: true };
   });
 
 export const Route = createFileRoute("/")({
