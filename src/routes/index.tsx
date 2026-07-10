@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { readFile } from "node:fs/promises";
-import { useState } from "react";
-import { query } from "~/utils/db";
 
 const getBusinessName = createServerFn({ method: "GET" }).handler(async () => {
   try {
@@ -15,27 +13,6 @@ const getBusinessName = createServerFn({ method: "GET" }).handler(async () => {
   }
 });
 
-const waitlistFn = createServerFn({ method: "POST" })
-  .validator((data: { email: string }) => data)
-  .handler(async ({ data }) => {
-    const { email } = data;
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return { error: "Invalid email address" };
-    }
-
-    const safeEmail = email.replace(/'/g, "''");
-    try {
-      await query("INSERT INTO waitlist (email) VALUES ('" + safeEmail + "')");
-      return { success: true };
-    } catch (e: any) {
-      if (e.message && e.message.includes("UNIQUE")) {
-        return { error: "You're already on the waitlist!" };
-      }
-      return { error: "Failed to join waitlist." };
-    }
-  });
-
 export const Route = createFileRoute("/")({
   loader: () => getBusinessName(),
   component: Home,
@@ -43,31 +20,6 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const businessName = Route.useLoaderData();
-  const [email, setEmail] = useState("");
-  const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [waitlistMessage, setWaitlistMessage] = useState("");
-
-  const handleWaitlistSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setWaitlistStatus("loading");
-    setWaitlistMessage("");
-
-    try {
-      const result = await waitlistFn({ data: { email } });
-      if ("error" in result) {
-        setWaitlistStatus("error");
-        setWaitlistMessage(result.error as string);
-      } else {
-        setWaitlistStatus("success");
-        setWaitlistMessage("You're on the list. Your goddess will find you soon.");
-        setEmail("");
-      }
-    } catch {
-      setWaitlistStatus("error");
-      setWaitlistMessage("Something went wrong. Please try again.");
-    }
-  };
-
   return (
     <main className="flex min-h-dvh flex-col bg-[#0a0a0b]">
       {/* Navigation */}
@@ -102,7 +54,7 @@ function Home() {
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
           <span className="animate-fade-in inline-block rounded-full border border-[rgba(201,149,46,0.2)] bg-[rgba(201,149,46,0.05)] px-4 py-1.5 text-xs font-medium tracking-widest uppercase gold-text">
-            Early Access
+            Now Available
           </span>
 
           <h1 className="animate-fade-in-delay-1 mt-10 text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl md:text-7xl">
@@ -119,44 +71,19 @@ function Home() {
             ghosting. No unpredictability. Pure, authentic findom.
           </p>
 
-          {/* Waitlist Email Capture */}
-          <div className="animate-fade-in-delay-3 mx-auto mt-10 max-w-md">
-            {waitlistStatus === "success" ? (
-              <div className="rounded-lg border border-[rgba(201,149,46,0.2)] bg-[rgba(201,149,46,0.05)] px-6 py-4">
-                <p className="gold-text text-sm">{waitlistMessage}</p>
-              </div>
-            ) : (
-              <form onSubmit={handleWaitlistSubmit} className="flex flex-col gap-3 sm:flex-row">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email for early access"
-                  className="input-dark flex-1 text-center sm:text-left"
-                  required
-                  disabled={waitlistStatus === "loading"}
-                />
-                <button
-                  type="submit"
-                  disabled={waitlistStatus === "loading"}
-                  className="btn-gold whitespace-nowrap disabled:opacity-50"
-                >
-                  {waitlistStatus === "loading" ? "Joining..." : "Join waitlist"}
-                </button>
-              </form>
-            )}
-
-            {waitlistStatus === "error" && (
-              <p className="mt-3 text-xs text-[#dc2626]">{waitlistMessage}</p>
-            )}
-          </div>
-
-          <div className="animate-fade-in-delay-3 mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          {/* Direct CTA */}
+          <div className="animate-fade-in-delay-3 mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               to="/signup"
-              className="btn-ghost text-sm"
+              className="btn-gold text-base"
             >
-              Or create your full account →
+              Create your goddess
+            </Link>
+            <Link
+              to="/login"
+              className="btn-ghost text-base"
+            >
+              Sign in
             </Link>
           </div>
         </div>
