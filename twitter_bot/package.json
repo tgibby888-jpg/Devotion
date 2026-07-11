@@ -1,0 +1,17 @@
+{
+  "name": "devotion-tweet-bot",
+  "version": "1.0.0",
+  "description": "Posts tweets from the Devotion content calendar via Twitter API v2",
+  "main": "post_tweet.js",
+  "scripts": {
+    "post-now": "node post_tweet.js --now",
+    "start": "node post_tweet.js"
+  },
+  "dependencies": {
+    "twitter-api-v2": "^1.29.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

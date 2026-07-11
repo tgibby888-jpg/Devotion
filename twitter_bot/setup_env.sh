@@ -1,0 +1,8 @@
+#!/bin/bash
+# Twitter API credentials - set these before running the bot
+export TWITTER_API_KEY="gg2lFESkgdRDTOEki9yX4QSAT"
+export TWITTER_API_SECRET="SMxiD82wb1VZY1hgeYge3P9zfmlZL6FNN5HCQO2ujA3rmtomRY"
+export TWITTER_BEARER_TOKEN="AAAAAAAAAAAAAAAAAAAAAGok+gEAAAAA/lGdKM+GLBPFN7GiWz7XolJca98=9MqCiDpMw2hjFyV4LkQjcx5fkw3xx8fJdFv5ww1vhGMfs2aSxY"
+export TWITTER_ACCESS_TOKEN="2074129609503776768-RGpARyGcUGzvRQFm1myo0L6fabLH9y"
+export TWITTER_ACCESS_SECRET="FbmeMIo7T84k2XY5XOv9Ahf4c5oY1mn8GF0vMlyiEc0lN"
+echo "Twitter API credentials configured"
