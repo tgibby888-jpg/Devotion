@@ -42,11 +42,11 @@ function parseCalendar() {
     if (line.trim().startsWith('```')) { inTweet = !inTweet; continue; }
     if (inTweet && line.trim().startsWith('```')) { inTweet = false; continue; }
 
-    const dayMatch = line.match(/^#### Day (\d+)/);
+    const dayMatch = line.match(/^## Day (\d+)/);
     if (dayMatch) { currentDay = parseInt(dayMatch[1]); continue; }
 
-    const t1 = line.match(/\*\*Tweet 1\*\*/);
-    const t2 = line.match(/\*\*Tweet 2\*\*/);
+    const t1 = line.match(/^### Tweet 1 \((\d+)(am|pm)/);
+    const t2 = line.match(/^### Tweet 2 \((\d+)(am|pm)/);
     if (t1 || t2) {
       // Save previous tweet if exists
       if (currentText.length > 0 && currentDay && currentTime) {
