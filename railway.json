@@ -11,6 +11,6 @@
   },
   "cron": {
     "schedule": "0 10,19 * * *",
-    "command": "node twitter_bot/post_tweet.js --now"
+    "command": "node twitter_bot/post_tweet.cjs --now"
   }
 }
