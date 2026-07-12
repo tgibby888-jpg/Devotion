@@ -17,7 +17,7 @@ const path = require('path');
 const https = require('https');
 
 const DATA_FILE = path.join(__dirname, 'tweet_queue.json');
-const CALENDAR_FILE = path.join(__dirname, '..', 'content', 'ready-to-post.md');
+const CALENDAR_FILE = path.join(__dirname, '..', 'content', '14-day-content-calendar.md');
 
 // ── Parse Twitter credentials from env ──
 const CREDS = {
