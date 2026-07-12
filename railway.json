@@ -3,12 +3,6 @@
   "build": {
     "buildCommand": "bun install && bun run build"
   },
-  "deploy": {
-    "startCommand": "bun run serve.ts",
-    "healthcheckPath": "/",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
-  },
   "cron": {
     "schedule": "0 9,14 * * *",
     "command": "node twitter_bot/post_tweet.js --now"
