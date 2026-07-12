@@ -10,7 +10,7 @@
     "restartPolicyMaxRetries": 10
   },
   "cron": {
-    "schedule": "0 10,19 * * *",
-    "command": "node twitter_bot/post_tweet.cjs --now"
+    "schedule": "0 9,14 * * *",
+    "command": "node twitter_bot/post_tweet.js --now"
   }
 }
